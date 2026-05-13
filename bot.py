@@ -1,42 +1,4 @@
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_message = update.message.text.lower()
-
-    if (
-        "who created you" in user_message
-        or "who is your founder" in user_message
-        or "who made you" in user_message
-        or "founder" in user_message
-        or "elnur" in user_message
-    ):
-        await update.message.reply_text(
-            "ProjectSHV AI was created and developed by Elnur Shavkatov."
-        )
-        return
-
-    try:
-        completion = client.chat.completions.create(
-            model="openai/gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "You are ProjectSHV AI, an AI-powered Telegram assistant. "
-                        "Maintain a professional and intelligent tone."
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
-            ],
-        )
-
-        reply = completion.choices[0].message.content
-
-        await update.message.reply_text(reply)
-
-    except Exception as e:
-        await update.message.reply_text(f"Error: {e}")import os
+import os
 from openai import OpenAI
 from telegram import Update
 from telegram.ext import (
@@ -55,9 +17,28 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
 )
 
+SYSTEM_PROMPT = """
+You are ProjectSHV AI.
+
+Your founder is Elnur Shavkatov.
+
+If users ask:
+- who created you
+- who is your founder
+- who made you
+- who developed you
+
+You MUST answer:
+"ProjectSHV AI was founded and developed by Elnur Shavkatov."
+
+Be professional, modern, and intelligent.
+"""
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Hello! I am your AI bot powered by OpenRouter."
+        "Welcome to ProjectSHV AI.\n\n"
+        "An advanced AI assistant founded and developed by Elnur Shavkatov.\n\n"
+        "How can I help you today?"
     )
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -67,6 +48,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         completion = client.chat.completions.create(
             model="openai/gpt-4o-mini",
             messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
         )
